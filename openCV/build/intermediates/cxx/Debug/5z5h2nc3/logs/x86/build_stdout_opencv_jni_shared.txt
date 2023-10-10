@@ -1,0 +1,2 @@
+ninja: Entering directory `D:\Main\Dhruv\Project\x\tempapp\app2\openCV\.cxx\Debug\5z5h2nc3\x86'
+ninja: no work to do.
