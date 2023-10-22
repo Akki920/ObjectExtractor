@@ -9,6 +9,8 @@ import static org.opencv.core.Core.multiply;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -21,6 +23,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -44,6 +47,7 @@ import org.tensorflow.lite.support.model.Model;
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 import com.example.app2.objectDetector;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -160,7 +164,7 @@ public class Models extends AppCompatActivity {
             Object out = outputs.get(0);
             Bitmap op = convertArrayToBitmapTensorFlow(output1,320,320);
 
-            u2net_interpreter.close();
+
             Mat image = new Mat(320,320,CvType.CV_8UC4);
             Utils.bitmapToMat(scaledBitmap,image);
 
@@ -195,11 +199,14 @@ public class Models extends AppCompatActivity {
             Mat result_image = new Mat();
             Core.add(foreground, background, result_image);
 
-            Utils.matToBitmap(foreground,op);
+            Utils.matToBitmap(result_image,op);
+            Bitmap x = trans(op);
 //            imageViewM.setImageBitmap(op);
 
-            Bitmap outBitmap = Bitmap.createScaledBitmap(op,originalWidth,originalHeight,false);
+            Bitmap outBitmap = Bitmap.createScaledBitmap(x,originalWidth,originalHeight,false);
             imageViewM.setImageBitmap(outBitmap);
+            u2net_interpreter.close();
+
 //            Bitmap resultBitmap = Bitmap.createBitmap(result_image.cols(), result_image.rows(), Bitmap.Config.ARGB_8888);
 //            Utils.matToBitmap(result_image, resultBitmap);
 //            imageViewM.setImageBitmap(resultBitmap);
@@ -382,6 +389,21 @@ Log.d("Done","Done");
         return grayToneImage;
     }
 
+    private Bitmap trans(Bitmap inp){
+        int backgroundColorToRemove = Color.WHITE;
+
+        Bitmap modifiedBitmap = inp.copy(Bitmap.Config.ARGB_8888, true);
+
+        for (int x = 0; x < modifiedBitmap.getWidth(); x++) {
+            for (int y = 0; y < modifiedBitmap.getHeight(); y++) {
+                int pixelColor = modifiedBitmap.getPixel(x, y);
+                if (pixelColor == backgroundColorToRemove) {
+                    modifiedBitmap.setPixel(x, y, Color.TRANSPARENT); // or set to another color
+                }
+            }
+        }
+        return modifiedBitmap;
+    }
 //    private void matt(Bitmap bmp){
 //        Mat image = new Mat();
 //        Utils.bitmapToMat(bmp,image);
