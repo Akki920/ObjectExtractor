@@ -18,7 +18,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 
 
-import com.example.app2.ml.LiteModelCartoonganDr1;
+import com.example.app2.cartoon.LiteModelCartoonganDr1;
 
 
 import org.opencv.android.Utils;
